@@ -40,12 +40,12 @@ export function ProductARScene({
 
     const nutriColor = (g?: string) => {
         switch (g) {
-            case "a": return "#1E8F4E";
-            case "b": return "#5BC236";
-            case "c": return "#FFCC00";
-            case "d": return "#FF8C00";
-            case "e": return "#E53935";
-            default: return "#CCCCCC";
+            case "a": return "nutriA";
+            case "b": return "nutriB";
+            case "c": return "nutriC";
+            case "d": return "nutriD";
+            case "e": return "nutriE";
+            default: return "glassCard";
         }
     };
 
@@ -91,24 +91,19 @@ export function ProductARScene({
     return (
         <ViroARScene>
             <ViroNode
-                position={[0, -0.1, -0.5]} // Place 0.5m in front
+                position={[0, -0.1, -0.5]}
                 animation={{ name: "popIn", run: runAnimation, loop: false }}
                 dragType="FixedToWorld"
                 onDrag={() => { }}
             >
-                {/* 
-                    Main Container Card
-                    Dimensions: 4m x 5m (scaled down by 0.1 -> 40cm x 50cm visual size)
-                    Using ViroFlexView for Layout
-                */}
                 <ViroFlexView
                     width={4.0}
-                    height={5.0}
+                    height={5.0} // Increased height to fit footer
                     scale={[0.1, 0.1, 0.1]}
                     style={styles.cardContainer}
                     materials={["glassCard"]}
                 >
-                    {/* Header: Brand and Product Name */}
+                    {/* Header */}
                     <ViroFlexView style={styles.headerContainer} width={3.8} height={1.2}>
                         <ViroText
                             text={(product.brand || "Brand").toUpperCase()}
@@ -125,38 +120,33 @@ export function ProductARScene({
                         />
                     </ViroFlexView>
 
-                    {/* Data Grid: NutriScore + Info */}
+                    {/* Middle: Nutri-Score & Quantity */}
                     <ViroFlexView style={styles.gridContainer} width={3.8} height={1.2}>
-                        {/* Cell 1: NutriScore Badge */}
-                        <ViroFlexView style={styles.gridCell} width={1.2} height={1.2}>
-                            <ViroBox
-                                height={1.0}
-                                width={1.0}
-                                length={0.05}
-                                materials={[nutriColor(product.nutriScore) === "#E53935" ? "nutriE" :
-                                    nutriColor(product.nutriScore) === "#FF8C00" ? "nutriD" :
-                                        nutriColor(product.nutriScore) === "#FFCC00" ? "nutriC" :
-                                            nutriColor(product.nutriScore) === "#5BC236" ? "nutriB" : "nutriA"]}
-                            />
+                        {/* NutriScore Badge - Container IS the colored box */}
+                        <ViroFlexView
+                            style={styles.nutriBadge}
+                            width={1.0}
+                            height={1.0}
+                            materials={[nutriColor(product.nutriScore)]}
+                        >
                             <ViroText
                                 text={ns}
-                                position={[0, 0, 0.06]}
                                 width={1.0}
                                 height={1.0}
                                 style={styles.nutriText}
                             />
                         </ViroFlexView>
 
-                        {/* Cell 2: General Info / Scanned Date */}
+                        {/* Quantity Info */}
                         <ViroFlexView style={styles.gridCellLeft} width={2.6} height={1.2}>
                             <ViroText
-                                text={"Scanned Now"}
+                                text={"Quantity / Size"}
                                 width={2.5}
                                 height={0.5}
                                 style={styles.infoLabel}
                             />
                             <ViroText
-                                text={new Date().toLocaleTimeString()}
+                                text={product.quantity || "N/A"}
                                 width={2.5}
                                 height={0.5}
                                 style={styles.infoValue}
@@ -164,8 +154,8 @@ export function ProductARScene({
                         </ViroFlexView>
                     </ViroFlexView>
 
-                    {/* Details Section: Allergens & Ingredients */}
-                    <ViroFlexView style={styles.detailsContainer} width={3.8} height={2.4}>
+                    {/* Details: Allergens & Ingredients */}
+                    <ViroFlexView style={styles.detailsContainer} width={3.8} height={2.2}>
                         <ViroText
                             text="Allergens:"
                             width={3.8}
@@ -189,11 +179,22 @@ export function ProductARScene({
                         <ViroText
                             text={ingredientsStr}
                             width={3.8}
-                            height={1.0}
+                            height={0.8}
                             style={styles.smallText}
                             maxLines={3}
                         />
                     </ViroFlexView>
+
+                    {/* Footer: Scanned Time */}
+                    <ViroFlexView style={styles.footerContainer} width={3.8} height={0.3}>
+                        <ViroText
+                            text={`Scanned: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                            width={3.8}
+                            height={0.3}
+                            style={styles.footerText}
+                        />
+                    </ViroFlexView>
+
                 </ViroFlexView>
             </ViroNode>
         </ViroARScene>
@@ -228,10 +229,7 @@ ViroAnimations.registerAnimations({
 
 const styles = StyleSheet.create({
     loadingText: {
-        fontSize: 30,
-        color: "#FFFFFF",
-        textAlign: "center",
-        fontWeight: "bold",
+        fontSize: 30, color: "#FFFFFF", textAlign: "center", fontWeight: "bold",
     },
     cardContainer: {
         flexDirection: "column",
@@ -239,75 +237,48 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(20,20,20,0.9)",
     },
     headerContainer: {
-        flexDirection: "column",
-        marginBottom: 0.1,
+        flexDirection: "column", marginBottom: 0.1,
     },
     gridContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 0.1,
+        flexDirection: "row", alignItems: "center", marginBottom: 0.1,
     },
-    gridCell: {
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+    nutriBadge: {
+        flexDirection: "column", alignItems: "center", justifyContent: "center",
     },
     gridCellLeft: {
-        flexDirection: "column",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        paddingLeft: 0.2,
+        flexDirection: "column", alignItems: "flex-start", justifyContent: "center", paddingLeft: 0.2,
     },
     detailsContainer: {
-        flexDirection: "column",
+        flexDirection: "column", marginBottom: 0.1,
+    },
+    footerContainer: {
+        flexDirection: "column", justifyContent: "flex-end",
     },
     brandText: {
-        fontSize: 24,
-        color: "rgba(255,255,255,0.7)",
-        fontWeight: "600",
-        textAlign: "left",
-        textAlignVertical: "center",
+        fontSize: 24, color: "rgba(255,255,255,0.7)", fontWeight: "600", textAlign: "left", textAlignVertical: "center",
     },
     productNameText: {
-        fontSize: 40,
-        color: "#FFFFFF",
-        fontWeight: "bold",
-        textAlign: "left",
-        textAlignVertical: "top",
+        fontSize: 36, color: "#FFFFFF", fontWeight: "bold", textAlign: "left", textAlignVertical: "top",
     },
     nutriText: {
-        fontSize: 50,
-        fontWeight: "900",
-        color: "#FFFFFF",
-        textAlign: "center",
-        textAlignVertical: "center",
+        fontSize: 60, fontWeight: "900", color: "#FFFFFF", textAlign: "center", textAlignVertical: "center",
     },
     infoLabel: {
-        fontSize: 18,
-        color: "#AAAAAA",
-        textAlign: "left",
+        fontSize: 18, color: "#AAAAAA", textAlign: "left",
     },
     infoValue: {
-        fontSize: 24,
-        color: "#FFFFFF",
-        fontWeight: "bold",
-        textAlign: "left",
+        fontSize: 24, color: "#FFFFFF", fontWeight: "bold", textAlign: "left",
     },
     sectionHeader: {
-        fontSize: 20,
-        color: "#AAAAAA",
-        fontWeight: "600",
-        textAlign: "left",
-        marginTop: 0.1,
+        fontSize: 18, color: "#AAAAAA", fontWeight: "600", textAlign: "left", marginBottom: 0.05,
     },
     sometText: {
-        fontSize: 22,
-        color: "#FFEEEE",
-        textAlign: "left",
+        fontSize: 20, color: "#FFEEEE", textAlign: "left", textAlignVertical: "top",
     },
     smallText: {
-        fontSize: 18,
-        color: "#DDDDDD",
-        textAlign: "left",
+        fontSize: 16, color: "#DDDDDD", textAlign: "left", textAlignVertical: "top",
     },
+    footerText: {
+        fontSize: 14, color: "#666666", textAlign: "center", textAlignVertical: "center",
+    }
 });
