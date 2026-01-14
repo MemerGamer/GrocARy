@@ -6,6 +6,7 @@ import {
     ViroMaterials,
     ViroNode,
     ViroBox,
+    ViroFlexView,
     ViroAnimations,
 } from "@reactvision/react-viro";
 
@@ -14,9 +15,12 @@ interface Product {
     ean: string;
     fullName: string;
     brand?: string;
+    quantity?: string;
     imageUrl?: string;
     nutriScore?: "a" | "b" | "c" | "d" | "e";
     allergens?: string[];
+    ingredientsText?: string;
+    nutrientLevels?: Record<string, string>;
     scannedAt: Date;
 }
 
@@ -36,7 +40,7 @@ export function ProductARScene({
 
     const nutriColor = (g?: string) => {
         switch (g) {
-            case "a": return "#1E8F4E"; // Darker green for contrast on glass
+            case "a": return "#1E8F4E";
             case "b": return "#5BC236";
             case "c": return "#FFCC00";
             case "d": return "#FF8C00";
@@ -50,7 +54,6 @@ export function ProductARScene({
             .map((s) => s.replace(/-/g, " ").trim())
             .join(", ");
 
-    // Derive a “name-only” line if fullName contains brand
     const nameOnly = React.useMemo(() => {
         if (!product) return "";
         const brand = (product.brand || "").trim();
@@ -76,150 +79,138 @@ export function ProductARScene({
 
     const ns = (product.nutriScore || "?").toUpperCase();
 
-    // REMOVED EMOJI as it might cause rendering artifacts
-    const allergensText = product.allergens && product.allergens.length
-        ? `Allergens: ${prettyAllergens(product.allergens)}`
+    // Formatting display text
+    const allergensStr = product.allergens && product.allergens.length
+        ? `${prettyAllergens(product.allergens)}`
         : "No Allergens Detected";
 
-    // Text Scaling Strategy:
-    // We scale the ENTIRE CARD down by 0.1x.
-    // This allows us to use large layout values (meters -> decimeters) and large font sizes (points)
-    // ensuring high pixel density text rendering.
+    const ingredientsStr = product.ingredientsText
+        ? product.ingredientsText.slice(0, 150) + (product.ingredientsText.length > 150 ? "..." : "")
+        : "Ingredients not available";
 
     return (
         <ViroARScene>
-            {/* 
-                UX: Instant Placement at [0, -0.1, -0.5]
-             */}
             <ViroNode
-                position={[0, -0.1, -0.5]}
+                position={[0, -0.1, -0.5]} // Place 0.5m in front
                 animation={{ name: "popIn", run: runAnimation, loop: false }}
                 dragType="FixedToWorld"
                 onDrag={() => { }}
             >
                 {/* 
-                    PROFESSIONAL AR CARD DESIGN
-                    Dimensions: 3.2m x 3.5m (32cm x 35cm scaled)
-                    Procedural glassmorphism, reliable text rendering
+                    Main Container Card
+                    Dimensions: 4m x 5m (scaled down by 0.1 -> 40cm x 50cm visual size)
+                    Using ViroFlexView for Layout
                 */}
-
-                {/* GLASS BACKGROUND - Procedural (no image compression issues) */}
-                <ViroBox
-                    width={3.4}
-                    height={3.5}
-                    length={0.05}
+                <ViroFlexView
+                    width={4.0}
+                    height={5.0}
                     scale={[0.1, 0.1, 0.1]}
+                    style={styles.cardContainer}
                     materials={["glassCard"]}
-                    renderingOrder={1}
-                />
+                >
+                    {/* Header: Brand and Product Name */}
+                    <ViroFlexView style={styles.headerContainer} width={3.8} height={1.2}>
+                        <ViroText
+                            text={(product.brand || "Brand").toUpperCase()}
+                            width={3.8}
+                            height={0.4}
+                            style={styles.brandText}
+                        />
+                        <ViroText
+                            text={nameOnly}
+                            width={3.8}
+                            height={0.8}
+                            style={styles.productNameText}
+                            maxLines={2}
+                        />
+                    </ViroFlexView>
 
-                {/* BRAND NAME - Top Left (Avoids Badge) */}
-                <ViroText
-                    text={(product.brand || "Brand").toUpperCase()}
-                    position={[-0.035, 0.13, 0.06]}
-                    width={2.3}
-                    height={0.4}
-                    scale={[0.1, 0.1, 0.1]}
-                    style={styles.brandText}
-                    renderingOrder={2}
-                    extrusionDepth={0}
-                />
+                    {/* Data Grid: NutriScore + Info */}
+                    <ViroFlexView style={styles.gridContainer} width={3.8} height={1.2}>
+                        {/* Cell 1: NutriScore Badge */}
+                        <ViroFlexView style={styles.gridCell} width={1.2} height={1.2}>
+                            <ViroBox
+                                height={1.0}
+                                width={1.0}
+                                length={0.05}
+                                materials={[nutriColor(product.nutriScore) === "#E53935" ? "nutriE" :
+                                    nutriColor(product.nutriScore) === "#FF8C00" ? "nutriD" :
+                                        nutriColor(product.nutriScore) === "#FFCC00" ? "nutriC" :
+                                            nutriColor(product.nutriScore) === "#5BC236" ? "nutriB" : "nutriA"]}
+                            />
+                            <ViroText
+                                text={ns}
+                                position={[0, 0, 0.06]}
+                                width={1.0}
+                                height={1.0}
+                                style={styles.nutriText}
+                            />
+                        </ViroFlexView>
 
-                {/* PRODUCT NAME - Middle (Centered) */}
-                <ViroText
-                    text={nameOnly}
-                    position={[0, 0.04, 0.06]}
-                    width={3.0}
-                    height={1.0}
-                    scale={[0.1, 0.1, 0.1]}
-                    maxLines={2}
-                    style={styles.productNameText}
-                    textLineBreakMode="WordWrap"
-                    renderingOrder={2}
-                    extrusionDepth={0}
-                />
+                        {/* Cell 2: General Info / Scanned Date */}
+                        <ViroFlexView style={styles.gridCellLeft} width={2.6} height={1.2}>
+                            <ViroText
+                                text={"Scanned Now"}
+                                width={2.5}
+                                height={0.5}
+                                style={styles.infoLabel}
+                            />
+                            <ViroText
+                                text={new Date().toLocaleTimeString()}
+                                width={2.5}
+                                height={0.5}
+                                style={styles.infoValue}
+                            />
+                        </ViroFlexView>
+                    </ViroFlexView>
 
-                {/* ALLERGENS - Lower (Centered) */}
-                <ViroText
-                    text={allergensText}
-                    position={[0, -0.09, 0.06]}
-                    width={3.0}
-                    height={0.6}
-                    scale={[0.1, 0.1, 0.1]}
-                    maxLines={2}
-                    style={styles.allergenText}
-                    textLineBreakMode="WordWrap"
-                    renderingOrder={2}
-                    extrusionDepth={0}
-                />
+                    {/* Details Section: Allergens & Ingredients */}
+                    <ViroFlexView style={styles.detailsContainer} width={3.8} height={2.4}>
+                        <ViroText
+                            text="Allergens:"
+                            width={3.8}
+                            height={0.4}
+                            style={styles.sectionHeader}
+                        />
+                        <ViroText
+                            text={allergensStr}
+                            width={3.8}
+                            height={0.6}
+                            style={styles.sometText}
+                            maxLines={2}
+                        />
 
-
-                {/* NUTRI-SCORE BADGE - Top Right Corner */}
-                <ViroNode position={[0.12, 0.13, 0.002]}>
-                    {/* Colored Box Background (Smaller, Professional) */}
-                    <ViroBox
-                        height={0.6}
-                        width={0.6}
-                        length={0.03}
-                        scale={[0.1, 0.1, 0.1]}
-                        materials={[nutriColor(product.nutriScore) === "#E53935" ? "nutriE" :
-                            nutriColor(product.nutriScore) === "#FF8C00" ? "nutriD" :
-                                nutriColor(product.nutriScore) === "#FFCC00" ? "nutriC" :
-                                    nutriColor(product.nutriScore) === "#5BC236" ? "nutriB" : "nutriA"]}
-                    />
-                    {/* Centered Grade Letter */}
-                    <ViroText
-                        text={ns}
-                        position={[0, 0, 0.002]}
-                        width={0.6}
-                        height={0.6}
-                        scale={[0.1, 0.1, 0.1]}
-                        style={styles.nutriText}
-                        extrusionDepth={0}
-                    />
-                </ViroNode>
+                        <ViroText
+                            text="Ingredients:"
+                            width={3.8}
+                            height={0.4}
+                            style={styles.sectionHeader}
+                        />
+                        <ViroText
+                            text={ingredientsStr}
+                            width={3.8}
+                            height={1.0}
+                            style={styles.smallText}
+                            maxLines={3}
+                        />
+                    </ViroFlexView>
+                </ViroFlexView>
             </ViroNode>
         </ViroARScene>
     );
 }
 
 ViroMaterials.createMaterials({
-    // Procedural glassmorphism (no compression issues)
-    // glassCard: {
-    //     diffuseColor: "rgba(30, 30, 30, 0.90)",
-    //     lightingModel: "Constant",
-    //     blendMode: "Alpha",
-    // },
-
-    // OPTION 2: Procedural (Code-only - No rounded corners but no asset needed)
-    // Uncomment and use with ViroBox instead of ViroQuad if you want pure code approach:
     glassCard: {
-        diffuseColor: "rgba(30, 30, 30, 0.90)",
+        diffuseColor: "rgba(20, 20, 20, 0.90)",
         lightingModel: "Constant",
         blendMode: "Alpha",
     },
-
-    // Nutri-Score badge colors
-    nutriA: {
-        diffuseColor: "#1E8F4E",
-        lightingModel: "Constant",
-    },
-    nutriB: {
-        diffuseColor: "#5BC236",
-        lightingModel: "Constant",
-    },
-    nutriC: {
-        diffuseColor: "#FFCC00",
-        lightingModel: "Constant",
-    },
-    nutriD: {
-        diffuseColor: "#FF8C00",
-        lightingModel: "Constant",
-    },
-    nutriE: {
-        diffuseColor: "#E53935",
-        lightingModel: "Constant",
-    },
+    nutriA: { diffuseColor: "#1E8F4E", lightingModel: "Constant" },
+    nutriB: { diffuseColor: "#5BC236", lightingModel: "Constant" },
+    nutriC: { diffuseColor: "#FFCC00", lightingModel: "Constant" },
+    nutriD: { diffuseColor: "#FF8C00", lightingModel: "Constant" },
+    nutriE: { diffuseColor: "#E53935", lightingModel: "Constant" },
 });
 
 ViroAnimations.registerAnimations({
@@ -242,33 +233,81 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontWeight: "bold",
     },
-
-    // PROFESSIONAL AR CARD TYPOGRAPHY
+    cardContainer: {
+        flexDirection: "column",
+        padding: 0.1,
+        backgroundColor: "rgba(20,20,20,0.9)",
+    },
+    headerContainer: {
+        flexDirection: "column",
+        marginBottom: 0.1,
+    },
+    gridContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 0.1,
+    },
+    gridCell: {
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    gridCellLeft: {
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        paddingLeft: 0.2,
+    },
+    detailsContainer: {
+        flexDirection: "column",
+    },
     brandText: {
-        fontSize: 26,
-        color: "rgba(255,255,255,0.75)",
+        fontSize: 24,
+        color: "rgba(255,255,255,0.7)",
         fontWeight: "600",
         textAlign: "left",
         textAlignVertical: "center",
     },
     productNameText: {
-        fontSize: 50,
+        fontSize: 40,
         color: "#FFFFFF",
         fontWeight: "bold",
         textAlign: "left",
         textAlignVertical: "top",
     },
-    allergenText: {
-        fontSize: 28,
-        color: "#FFEEEE",
-        textAlign: "left",
-        textAlignVertical: "center",
-    },
     nutriText: {
-        fontSize: 42,
+        fontSize: 50,
         fontWeight: "900",
         color: "#FFFFFF",
         textAlign: "center",
         textAlignVertical: "center",
+    },
+    infoLabel: {
+        fontSize: 18,
+        color: "#AAAAAA",
+        textAlign: "left",
+    },
+    infoValue: {
+        fontSize: 24,
+        color: "#FFFFFF",
+        fontWeight: "bold",
+        textAlign: "left",
+    },
+    sectionHeader: {
+        fontSize: 20,
+        color: "#AAAAAA",
+        fontWeight: "600",
+        textAlign: "left",
+        marginTop: 0.1,
+    },
+    sometText: {
+        fontSize: 22,
+        color: "#FFEEEE",
+        textAlign: "left",
+    },
+    smallText: {
+        fontSize: 18,
+        color: "#DDDDDD",
+        textAlign: "left",
     },
 });

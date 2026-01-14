@@ -18,6 +18,8 @@ interface ProductOFF {
   nutriScore?: "a" | "b" | "c" | "d" | "e";
   allergens?: string[];
   imageUrl?: string;
+  ingredientsText?: string;
+  nutrientLevels?: Record<string, string>;
 }
 
 interface Product {
@@ -25,9 +27,12 @@ interface Product {
   ean: string;
   fullName: string;
   brand?: string;
+  quantity?: string;
   imageUrl?: string;
   nutriScore?: ProductOFF["nutriScore"];
   allergens?: string[];
+  ingredientsText?: string;
+  nutrientLevels?: ProductOFF["nutrientLevels"];
   scannedAt: Date;
 }
 
@@ -72,9 +77,12 @@ export default function HybridGroceryApp() {
         ean,
         fullName,
         brand: off.brand,
+        quantity: off.quantity,
         imageUrl: off.imageUrl,
         nutriScore: off.nutriScore,
         allergens: off.allergens,
+        ingredientsText: off.ingredientsText,
+        nutrientLevels: off.nutrientLevels,
         scannedAt: new Date(),
       };
 
@@ -105,61 +113,46 @@ export default function HybridGroceryApp() {
   }
 
   async function fetchOpenFoodFacts(ean: string): Promise<ProductOFF> {
-    const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(
+    const fields = [
+      "product_name",
+      "brands",
+      "quantity",
+      "nutriscore_grade",
+      "allergens_tags",
+      "image_front_url",
+      "image_url",
+      "ingredients_text",
+      "nutrient_levels",
+      "lang",
+    ].join(",");
+    const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(
       ean
-    )}.json`;
+    )}.json?fields=${fields}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`OFF HTTP ${res.status}`);
     const json = await res.json();
     if (json.status !== 1 || !json.product) return {};
 
     const prod = json.product;
-    const lang = prod.lang || prod.lc || "en";
-    const byLangKey = (k: string) =>
-      prod[`${k}_${lang}`] ||
-      prod[`${k}_en`] ||
-      prod[`${k}_de`] ||
-      prod[`${k}_fr`] ||
-      prod[`${k}_it`] ||
-      prod[k];
+    // V2 API fields are usually direct, but we still handle lang fallbacks if needed for some generic fields if they return objects
+    // However, ?fields=... usually returns the specific value.
+    // For safety with older OFF data structures mixed in:
 
-    const name: string | undefined =
-      (byLangKey("product_name") as string | undefined)?.trim() ||
-      (byLangKey("generic_name") as string | undefined)?.trim();
+    const name = prod.product_name || "";
+    const brand = prod.brands || "";
+    const quantity = prod.quantity || "";
+    const nutriScore = prod.nutriscore_grade as ProductOFF["nutriScore"];
 
-    const brand: string | undefined =
-      (prod.brands && String(prod.brands).split(",")[0].trim()) || undefined;
+    // Allergens tags are like "en:milk", "en:soybeans"
+    const allergens = (prod.allergens_tags as string[] || []).map(t =>
+      t.replace(/^..:/, "").replace(/-/g, " ")
+    );
 
-    const quantity: string | undefined =
-      (prod.quantity && String(prod.quantity).trim()) ||
-      (prod.product_quantity && prod.product_quantity_unit
-        ? `${prod.product_quantity}${prod.product_quantity_unit}`
-        : undefined);
+    const imageUrl = prod.image_front_url || prod.image_url;
+    const ingredientsText = prod.ingredients_text;
+    const nutrientLevels = prod.nutrient_levels;
 
-    const nutriScore: ProductOFF["nutriScore"] =
-      (prod.nutriscore_grade as any) || undefined;
-
-    const allergens: string[] | undefined =
-      (prod.allergens_tags as string[] | undefined)?.map((t) =>
-        t.replace(/^..:/, "").replace(/-/g, " ")
-      ) ||
-      (prod.allergens
-        ? String(prod.allergens)
-          .split(/[;,]/)
-          .map((s: string) => s.trim())
-          .filter(Boolean)
-        : undefined);
-
-    const imageUrl: string | undefined =
-      prod.image_front_url ||
-      prod.image_url ||
-      (prod.selected_images &&
-        prod.selected_images.front &&
-        prod.selected_images.front.display &&
-        (prod.selected_images.front.display[lang] ||
-          prod.selected_images.front.display.en));
-
-    return { name, brand, quantity, nutriScore, allergens, imageUrl };
+    return { name, brand, quantity, nutriScore, allergens, imageUrl, ingredientsText, nutrientLevels };
   }
 
   React.useEffect(() => {
@@ -206,9 +199,11 @@ export default function HybridGroceryApp() {
       ) : (
         <View style={styles.arContainer}>
           <ViroARSceneNavigator
-            initialScene={{ scene: () => (
-              <ProductARScene product={currentProduct} />
-            ) }}
+            initialScene={{
+              scene: () => (
+                <ProductARScene product={currentProduct} />
+              )
+            }}
             style={StyleSheet.absoluteFillObject}
           />
 
