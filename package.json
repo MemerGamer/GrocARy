@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "build:android:dev": "cd android && ./gradlew assembleDebug -PbundleInDebug=true",
+    "install:android:dev": "cd android && ./gradlew installDebug -PbundleInDebug=true"
   },
   "dependencies": {
     "@react-native-community/blur": "^4.4.1",

@@ -76,6 +76,6 @@ Now that you have successfully run the app, let's modify it.
 1. Open `App.tsx` in your text editor of choice and edit some lines.
 2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
-## Special Thanks to Viro Community
+## Acknowledgments
 
-Check out our [documentation](https://viro-community.readme.io/) for guides, examples, and more!
+This app uses the [ViroReact](https://viro-community.readme.io/) library for AR functionality.
