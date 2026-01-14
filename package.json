@@ -8,8 +8,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "build:android:dev": "cd android && ./gradlew assembleDebug -PbundleInDebug=true",
-    "install:android:dev": "cd android && ./gradlew installDebug -PbundleInDebug=true"
+    "build:android:dev": "cd android && ./gradlew assembleRelease",
+    "install:android:dev": "cd android && ./gradlew installRelease"
   },
   "dependencies": {
     "@react-native-community/blur": "^4.4.1",
