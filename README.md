@@ -104,7 +104,7 @@ Now that you have successfully run the app, let's modify it.
 
 ## Acknowledgments
 
-This app uses the [ViroReact](https://viro-community.readme.io/) library for AR functionality.
+This app uses the [ViroReact](https://viro-community.readme.io/) library for AR functionality and [OpenFoodFacts](https://world.openfoodfacts.org/) for product data.
 
 ## Star History
 
