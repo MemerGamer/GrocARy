@@ -1,4 +1,30 @@
+<div align="center">
+
 # GrocARy
+
+**AR Grocery Shopping Companion**
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
+[![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white)](https://developer.apple.com/ios/)
+
+</div>
+
+---
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Step 0: Use correct Node version](#step-0-use-correct-node-version)
+- [Step 1: Install Dependencies](#step-1-install-dependencies)
+- [Step 2: Start the Metro Server](#step-2-start-the-metro-server)
+- [Step 3: Start your Application](#step-3-start-your-application)
+- [Step 4: Modifying your App](#step-4-modifying-your-app)
+- [Acknowledgments](#acknowledgments)
+- [Star History](#star-history)
+
+---
 
 ## Getting Started
 
@@ -79,3 +105,13 @@ Now that you have successfully run the app, let's modify it.
 ## Acknowledgments
 
 This app uses the [ViroReact](https://viro-community.readme.io/) library for AR functionality.
+
+## Star History
+
+<a href="https://www.star-history.com/#MemerGamer/GrocARy&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=MemerGamer/GrocARy&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=MemerGamer/GrocARy&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=MemerGamer/GrocARy&type=date&legend=top-left" />
+ </picture>
+</a>
