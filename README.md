@@ -102,6 +102,10 @@ Now that you have successfully run the app, let's modify it.
 1. Open `App.tsx` in your text editor of choice and edit some lines.
 2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
+## Documentation
+
+Detailed LaTeX documentation for the project, including architecture diagrams and design decisions, can be found in [docs/latex](docs/latex/README.md).
+
 ## Acknowledgments
 
 This app uses the [ViroReact](https://viro-community.readme.io/) library for AR functionality and [OpenFoodFacts](https://world.openfoodfacts.org/) for product data.
