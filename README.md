@@ -21,6 +21,7 @@
 - [Step 2: Start the Metro Server](#step-2-start-the-metro-server)
 - [Step 3: Start your Application](#step-3-start-your-application)
 - [Step 4: Modifying your App](#step-4-modifying-your-app)
+- [Documentation](#documentation)
 - [Acknowledgments](#acknowledgments)
 - [Star History](#star-history)
 
