@@ -8,6 +8,8 @@
 [![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
 [![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=ios&logoColor=white)](https://developer.apple.com/ios/)
+[![CI Status](https://github.com/MemerGamer/GrocARy/actions/workflows/ci.yml/badge.svg)](https://github.com/MemerGamer/GrocARy/actions/workflows/ci.yml)
+
 
 </div>
 
